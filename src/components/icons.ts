@@ -1,0 +1,1 @@
+export const TAB_ICON = `<svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"><path d="M14 8 L34 8 L40 18 L24 42 L8 18 Z"/><path d="M14 8 L24 18 L34 8"/><path d="M8 18 L40 18"/></svg>`

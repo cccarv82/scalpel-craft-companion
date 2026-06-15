@@ -1,0 +1,11 @@
+{
+  "manifestVersion": 1,
+  "id": "craft-companion",
+  "version": "0.1.0",
+  "name": "Craft Companion",
+  "description": "PoE2 endgame crafting recipes with step-by-step guidance, currency catalog, mod tier lookup and Ctrl+D auto-detect. Community-contributed.",
+  "author": "cccarv82",
+  "scalpelMinVersion": "0.9.13",
+  "poeVersions": [2, 1],
+  "homepage": "https://github.com/cccarv82/scalpel-craft-companion"
+}
