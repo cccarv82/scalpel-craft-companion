@@ -12,17 +12,18 @@ interface Row {
 }
 
 export function Analyzer() {
-  const last = useStore((s) => s.lastCapturedMods)
+  const last = useStore((s) => s.lastCaptured)
   const [rows, setRows] = useState<Row[]>([])
   const [auto, setAuto] = useState(true)
 
   useEffect(() => {
     if (!auto || !last) return
     const base = last.baseType
+    const mods = [...last.explicits, ...last.implicits]
     let cancelled = false
-    setRows(last.mods.map((modText) => ({ modText, matches: [], loading: true })))
+    setRows(mods.map((modText) => ({ modText, matches: [], loading: true })))
     Promise.all(
-      last.mods.map(async (modText) => {
+      mods.map(async (modText) => {
         try {
           const r = await lookupMod(base, modText)
           return { modText, matches: r.matches, loading: false }
@@ -53,7 +54,12 @@ export function Analyzer() {
           <div>
             <div style={labelStyle}>Last item captured</div>
             <strong>{last.baseType}</strong>
-            <span style={{ marginLeft: 6, opacity: 0.6, fontSize: 12 }}>{last.mods.length} mods</span>
+            <span style={{ marginLeft: 6, opacity: 0.6, fontSize: 12 }}>
+              {last.rarity} · ilvl {last.itemLevel}
+              {last.fractured ? ' · fractured' : ''}
+              {last.corrupted ? ' · corrupted' : ''}{' '}
+              · {last.explicits.length + last.implicits.length} mods
+            </span>
           </div>
           <label style={{ fontSize: 12, display: 'flex', alignItems: 'center', gap: 4 }}>
             <input type="checkbox" checked={auto} onChange={(e) => setAuto(e.target.checked)} />

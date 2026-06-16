@@ -31,6 +31,20 @@ export interface ActiveSession {
   history: { step: number; at: number; note?: string }[]
 }
 
+export interface CapturedItem {
+  baseType: string
+  name: string
+  rarity: string
+  itemLevel: number
+  quality: number
+  corrupted: boolean
+  identified: boolean
+  explicits: string[]
+  implicits: string[]
+  fractured: boolean
+  capturedAt: number
+}
+
 type View =
   | 'login'
   | 'browse'
@@ -63,7 +77,7 @@ interface Store {
 
   // Session
   activeSession: ActiveSession | null
-  lastCapturedMods: { baseType: string; mods: string[] } | null
+  lastCaptured: CapturedItem | null
 
   // Events
   events: EventItem[]
@@ -92,7 +106,7 @@ interface Store {
   addCost(amount: number): void
   bumpAttempts(): void
   endSession(): void
-  setLastCaptured(baseType: string, mods: string[]): void
+  setLastCaptured(item: CapturedItem): void
 
   pushEvents(events: EventItem[], serverTime: number): void
   markEventRead(id: string): void
@@ -110,7 +124,7 @@ export const useStore = create<Store>((set) => ({
   recipeTotal: 0,
   recipeFilters: { slot: '', poeVersion: 2, q: '', sort: 'top', page: 1 },
   activeSession: null,
-  lastCapturedMods: null,
+  lastCaptured: null,
   events: [],
   lastEventTs: 0,
   settings: DEFAULT_SETTINGS,
@@ -195,8 +209,8 @@ export const useStore = create<Store>((set) => ({
   endSession() {
     set({ activeSession: null })
   },
-  setLastCaptured(baseType, mods) {
-    set({ lastCapturedMods: { baseType, mods } })
+  setLastCaptured(item) {
+    set({ lastCaptured: item })
   },
 
   pushEvents(events, serverTime) {

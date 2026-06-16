@@ -6,6 +6,29 @@ import { TAB_ICON } from './components/icons'
 import { getMe, listEvents } from './lib/api'
 import { loadFromStorage, persistAuth, persistLastEventTs, persistSettings, useStore } from './store'
 
+let audioCtx: AudioContext | null = null
+function beep() {
+  try {
+    if (!audioCtx) {
+      const W = window as unknown as { AudioContext?: typeof AudioContext; webkitAudioContext?: typeof AudioContext }
+      const Ctor = W.AudioContext ?? W.webkitAudioContext
+      if (!Ctor) return
+      audioCtx = new Ctor()
+    }
+    const ctx = audioCtx
+    const o = ctx.createOscillator()
+    const g = ctx.createGain()
+    o.connect(g)
+    g.connect(ctx.destination)
+    o.type = 'sine'
+    o.frequency.value = 780
+    g.gain.setValueAtTime(0.1, ctx.currentTime)
+    g.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.3)
+    o.start()
+    o.stop(ctx.currentTime + 0.3)
+  } catch {}
+}
+
 const activate: PluginActivate = async (ctx: ScalpelPluginContext) => {
   const stored = await loadFromStorage(ctx.storage)
   useStore.getState().hydrate(stored)
@@ -26,8 +49,22 @@ const activate: PluginActivate = async (ctx: ScalpelPluginContext) => {
   // Subscribe to Ctrl+D'd items — feed the matcher + analyzer
   const offItem = ctx.onCurrentItem((item) => {
     if (!item.baseType) return
-    const mods = [...(item.explicits ?? []), ...(item.implicits ?? [])]
-    useStore.getState().setLastCaptured(item.baseType, mods)
+    const explicits = item.explicits ?? []
+    const implicits = item.implicits ?? []
+    const fractured = explicits.some((m) => /\(fractured\)/i.test(m)) || implicits.some((m) => /\(fractured\)/i.test(m))
+    useStore.getState().setLastCaptured({
+      baseType: item.baseType,
+      name: item.name ?? '',
+      rarity: (item.rarity ?? '').toString().toLowerCase(),
+      itemLevel: item.itemLevel ?? 0,
+      quality: item.quality ?? 0,
+      corrupted: !!item.corrupted,
+      identified: item.identified !== false,
+      explicits,
+      implicits,
+      fractured,
+      capturedAt: Date.now(),
+    })
   })
 
   // Events polling
@@ -40,6 +77,7 @@ const activate: PluginActivate = async (ctx: ScalpelPluginContext) => {
       if (res.events.length > 0) {
         s.pushEvents(res.events, res.serverTime)
         await persistLastEventTs(ctx.storage, res.serverTime)
+        if (s.settings.beepOnEvent) beep()
       } else if (res.serverTime !== s.lastEventTs) {
         await persistLastEventTs(ctx.storage, res.serverTime)
       }
