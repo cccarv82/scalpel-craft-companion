@@ -2,10 +2,12 @@ import type { ScalpelPluginContext } from '@scalpelpoe/plugin-sdk'
 import { useStore } from '../store'
 import { ActiveSession } from './ActiveSession'
 import { Analyzer } from './Analyzer'
+import { CurrencyBudget } from './CurrencyBudget'
 import { Login } from './Login'
 import { Profile } from './Profile'
 import { RecipeBrowser } from './RecipeBrowser'
 import { RecipeDetail } from './RecipeDetail'
+import { RecipeSubmit } from './RecipeSubmit'
 import { Settings } from './Settings'
 import { btn } from './ui'
 
@@ -39,6 +41,8 @@ export function App({ ctx }: Props) {
         <Tab label="Recipes" active={view === 'browse' || view === 'detail'} onClick={() => setView('browse')} />
         <Tab label={`Active${session ? ' ●' : ''}`} active={view === 'active'} onClick={() => setView('active')} />
         <Tab label="Analyzer" active={view === 'analyzer'} onClick={() => setView('analyzer')} />
+        <Tab label="Budget" active={view === 'budget'} onClick={() => setView('budget')} />
+        <Tab label="+ Submit" active={view === 'submit'} onClick={() => setView('submit')} />
         <div style={{ flex: 1 }} />
         <Tab label="⚙" active={view === 'settings'} onClick={() => setView('settings')} />
         <Tab label={user.displayName} active={view === 'profile'} onClick={() => setView('profile')} />
@@ -48,6 +52,8 @@ export function App({ ctx }: Props) {
         {view === 'detail' && <RecipeDetail />}
         {view === 'active' && <ActiveSession ctx={ctx} />}
         {view === 'analyzer' && <Analyzer />}
+        {view === 'budget' && <CurrencyBudget />}
+        {view === 'submit' && <RecipeSubmit />}
         {view === 'profile' && <Profile ctx={ctx} />}
         {view === 'settings' && <Settings ctx={ctx} />}
       </main>
